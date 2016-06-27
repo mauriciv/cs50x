@@ -6,7 +6,7 @@
  *
  * Helper functions for Problem Set 3.
  */
- 
+
 #include <cs50.h>
 
 /**
@@ -18,3 +18,5 @@ bool search(int value, int values[], int n);
  * Sorts array of n values.
  */
 void sort(int values[], int n);
+
+bool binarysearch(int searchedvalue, int values[], int min, int max);

@@ -16,15 +16,7 @@
  */
 bool search(int value, int values[], int n)
 {
-    if (n < 1){
-        return false;
-    }
-    for (int i = 0; i < n; i++) {
-        if (values[i] == value){
-            return true;
-        }
-    }
-    return false;
+    return binarysearch(value, values, 0, n-1);
 }
 
 /**
@@ -50,8 +42,23 @@ void sort(int values[], int n)
             values[lowestpos] = values[i];
             values[i] = lowestnum;
         }
-        printf("%i\n", values[i]);
     }
 
     return;
+}
+
+bool binarysearch(int searchedvalue, int values[], int min, int max){
+
+    if (max < min) {
+        return false;
+    }
+    int pos = (min + max) / 2;
+    if (values[pos] < searchedvalue) {
+        return binarysearch(searchedvalue, values, pos + 1, max);
+    } else if (searchedvalue < values[pos]) {
+        return binarysearch(searchedvalue, values, min, pos - 1);
+    } else {
+        return true;
+    }
+
 }
