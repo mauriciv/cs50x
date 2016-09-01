@@ -14,7 +14,7 @@
  * Note that usleep is obsolete, but it offers more granularity than
  * sleep and is simpler to use than nanosleep; `man usleep` for more.
  */
- 
+
 #define _XOPEN_SOURCE 500
 
 #include <cs50.h>
@@ -57,6 +57,7 @@ int main(int argc, string argv[])
             DIM_MIN, DIM_MIN, DIM_MAX, DIM_MAX);
         return 2;
     }
+
 
     // open log
     FILE* file = fopen("log.txt", "w");
@@ -105,7 +106,7 @@ int main(int argc, string argv[])
         // prompt for move
         printf("Tile to move: ");
         int tile = GetInt();
-        
+
         // quit if user inputs 0 (for testing)
         if (tile == 0)
         {
@@ -124,9 +125,9 @@ int main(int argc, string argv[])
         }
 
         // sleep thread for animation's sake
-        usleep(500000);
+        usleep(100000);
     }
-    
+
     // close log
     fclose(file);
 
@@ -155,11 +156,25 @@ void greet(void)
 
 /**
  * Initializes the game's board with tiles numbered 1 through d*d - 1
- * (i.e., fills 2D array with values but does not actually print them).  
+ * (i.e., fills 2D array with values but does not actually print them).
  */
 void init(void)
 {
-    // TODO
+    int value = d * d - 1;
+    bool isOdd = value % 2 == 1;
+    for (int row = 0; row < d; row++) {
+        for (int column = 0; column < d; column++) {
+            // If the number of columns and row is even, the tiles 1 and 2 are reversed
+            if (isOdd && value == 2) {
+                board[row][column] = 1;
+            } else if (isOdd && value == 1) {
+                board[row][column] = 2;
+            } else {
+                board[row][column] = value;
+            }
+            value--;
+        }
+    }
 }
 
 /**
@@ -167,25 +182,95 @@ void init(void)
  */
 void draw(void)
 {
-    // TODO
+    for (int row = 0; row < d; row++) {
+        for (int column = 0; column < d; column++) {
+            printf("|");
+            if (board[row][column] == 0) {
+                printf("  ");
+            } else {
+                if (board[row][column] < 10) {
+                    printf(" %i", board[row][column]);
+                } else {
+                    printf("%i", board[row][column]);
+                }
+            }
+
+        }
+        printf("|\n");
+    }
 }
 
 /**
  * If tile borders empty space, moves tile and returns true, else
- * returns false. 
+ * returns false.
  */
 bool move(int tile)
 {
-    // TODO
-    return false;
+    bool isTileOnBoard = false;
+    int tileRow;
+    int tileColumn;
+    // First we need to find the position of the tile
+    for (int row = 0; row < d; row++) {
+        for (int column = 0; column < d; column++) {
+            if (board[row][column] == tile) {
+                tileRow = row;
+                tileColumn = column;
+                isTileOnBoard = true;
+            }
+        }
+    }
+
+    if (!isTileOnBoard) {
+        return false;
+    } else {
+        // Check where and if the tile can move
+        if (tileRow > 0 && board[tileRow-1][tileColumn] == 0) { // North
+            board[tileRow-1][tileColumn] = tile;
+            board[tileRow][tileColumn] = 0;
+            return true;
+        } else if (tileRow < d-1 && board[tileRow+1][tileColumn] == 0) { // South
+            board[tileRow+1][tileColumn] = tile;
+            board[tileRow][tileColumn] = 0;
+            return true;
+        } else if (tileColumn < d-1 && board[tileRow][tileColumn+1] == 0){ // East
+            board[tileRow][tileColumn+1] = tile;
+            board[tileRow][tileColumn] = 0;
+            return true;
+        } else if (tileColumn > 0 && board[tileRow][tileColumn-1] == 0) { // West
+            board[tileRow][tileColumn-1] = tile;
+            board[tileRow][tileColumn] = 0;
+            return true;
+        } else { // Can't move anywhere
+            return false;
+        }
+
+    }
+
 }
 
 /**
- * Returns true if game is won (i.e., board is in winning configuration), 
+ * Returns true if game is won (i.e., board is in winning configuration),
  * else false.
  */
 bool won(void)
 {
-    // TODO
-    return false;
+    int counter = 1;
+    int maxNumber = d * d;
+    for (int row = 0; row < d; row++) {
+        for (int column = 0; column < d; column++) {
+            if (board[row][column] == counter) {
+                counter++;
+            } else {
+
+                // If we got here, either the board is not in order or we encountered the final zero
+                if (board[row][column] == 0 && counter == maxNumber) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
 }
